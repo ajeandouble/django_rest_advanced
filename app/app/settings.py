@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
-
+print(os.getenv('RUNNING_IN_DOCKER'))
+RUNNING_IN_DOCKER = os.getenv('RUNNING_IN_DOCKER')
 
 # Add optional DB if local don't use docker-compose
 
@@ -41,7 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core'
+    'rest_framework',
+    'rest_framework.authtoken',
+    'core',
+    'user'
 ]
 
 MIDDLEWARE = [
@@ -78,14 +82,22 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-	'default': {
-		'ENGINE': 'django.db.backends.postgresql',
-		'HOST': os.getenv('DB_HOST'),
-		'NAME': os.getenv('DB_NAME'),
-		'USER': os.getenv('DB_USER'),
-		'PASSWORD': os.getenv('DB_PASS')
-	}
+if RUNNING_IN_DOCKER == '1':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'HOST': os.getenv('DB_HOST'),
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASS')
+        }
+    }
+else:
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'mydatabase',
+    }
 }
 
 
@@ -131,3 +143,5 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'core.User'
